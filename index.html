@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5v5 Mobile Legends | Fox</title>
+
+  <style>
+    :root {
+      --bg: #080c18;
+      --panel: #111a2d;
+      --panel-light: #1b2741;
+      --purple: #9b7bff;
+      --cyan: #54e5ff;
+      --text: #f4f5ff;
+      --muted: #a7b0c8;
+      --border: #293653;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at top, #202750 0%, transparent 55%),
+        linear-gradient(135deg, #080c18, #10172b 55%, #080c18);
+      overflow-x: hidden;
+    }
+
+    button, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 90px 20px 100px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .home-content {
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 5px;
+      margin-bottom: 22px;
+    }
+
+    .main-title {
+      font-size: clamp(38px, 8vw, 76px);
+      font-weight: 1000;
+      line-height: 1.08;
+      letter-spacing: -2px;
+      text-shadow: 0 0 40px #7961ff50;
+    }
+
+    .main-title span {
+      display: block;
+      color: var(--purple);
+    }
+
+    .subtitle {
+      max-width: 500px;
+      margin: 24px auto 35px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .primary-btn {
+      min-width: 190px;
+      padding: 17px 32px;
+      border: 0;
+      border-radius: 13px;
+      color: #090d19;
+      background: linear-gradient(100deg, var(--cyan), #a9f4ff);
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 0 30px #54e5ff25;
+      transition: .2s;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 35px #54e5ff45;
+    }
+
+    .secondary-btn {
+      padding: 12px 18px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      background: var(--panel-light);
+      font-weight: 700;
+      transition: .2s;
+    }
+
+    .secondary-btn:hover {
+      border-color: var(--purple);
+      background: #263252;
+    }
+
+    .top-home-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 20;
+      display: none;
+    }
+
+    .top-home-btn.visible {
+      display: block;
+    }
+
+    .page-container {
+      width: 100%;
+      max-width: 1050px;
+      margin: auto;
+    }
+
+    .page-heading {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .page-heading h2 {
+      font-size: clamp(28px, 5vw, 42px);
+      margin-bottom: 12px;
+    }
+
+    .page-heading p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .panel {
+      padding: 25px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: #111a2ddd;
+      box-shadow: 0 20px 70px #0002;
+    }
+
+    .field-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .field-heading label {
+      font-weight: 800;
+    }
+
+    .player-count {
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 260px;
+      padding: 17px;
+      resize: vertical;
+      outline: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      background: #080f20;
+      line-height: 1.8;
+      transition: border-color .2s;
+    }
+
+    textarea:focus {
+      border-color: var(--purple);
+    }
+
+    textarea::placeholder {
+      color: #697692;
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .form-actions .primary-btn {
+      flex: 1;
+    }
+
+    .error-message {
+      display: none;
+      margin-top: 15px;
+      color: #ff818e;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .error-message.visible {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 22px;
+    }
+
+    .results-header h2 {
+      font-size: clamp(25px, 4vw, 36px);
+    }
+
+    .results-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .teams-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .team-card {
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(150deg, #192442, #0d1425);
+      animation: teamAppear .35s ease both;
+    }
+
+    .team-number {
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .team-name {
+      margin: 10px 0 18px;
+      color: var(--purple);
+      font-size: 24px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .team-players {
+      list-style: none;
+    }
+
+    .team-players li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 0;
+      border-top: 1px solid #293653;
+      overflow-wrap: anywhere;
+      line-height: 1.4;
+    }
+
+    .player-dot {
+      flex-shrink: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 10px #54e5ff70;
+    }
+
+    @keyframes teamAppear {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .results-note {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .fox-credit {
+      position: fixed;
+      right: 18px;
+      bottom: 16px;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px 8px 8px;
+      border: 1px solid #ffffff18;
+      border-radius: 50px;
+      color: #c4cbe0;
+      background: #0a1020e8;
+      font-size: 12px;
+      transition: .2s;
+    }
+
+    .fox-credit:hover {
+      border-color: var(--purple);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .fox-credit img {
+      width: 34px;
+      height: 34px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 1px solid #a18aff;
+      background: #1b2741;
+    }
+
+    .fox-credit strong {
+      color: var(--purple);
+    }
+
+    /* GELİŞTİRİCİ PROFİLİ */
+
+    .developer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(3, 6, 16, .88);
+      backdrop-filter: blur(10px);
+    }
+
+    .developer-overlay.active {
+      display: flex;
+    }
+
+    .developer-card {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      padding: 35px 25px;
+      text-align: center;
+      border: 1px solid #51468b;
+      border-radius: 24px;
+      background: linear-gradient(145deg, #1a2140, #0b1020);
+      box-shadow: 0 20px 80px #0008;
+      animation: teamAppear .25s ease;
+    }
+
+    .developer-photo {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--purple);
+      box-shadow: 0 0 35px #795cff55;
+      background: #202a42;
+    }
+
+    .developer-label {
+      margin-top: 22px;
+      color: #a99aff;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 3px;
+    }
+
+    .developer-name {
+      margin: 12px 0 8px;
+      font-size: 25px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .developer-brand {
+      color: #a99aff;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .developer-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      border: 1px solid #394462;
+      border-radius: 50%;
+      background: #222d47;
+      color: white;
+      font-size: 22px;
+    }
+
+    @media (max-width: 720px) {
+      .teams-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .team-card {
+        padding: 18px;
+      }
+
+      .screen {
+        padding: 85px 15px 100px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .results-header {
+        align-items: flex-start;
+      }
+
+      .results-actions {
+        width: 100%;
+      }
+
+      .results-actions button {
+        flex: 1;
+      }
+
+      .top-home-btn {
+        top: 12px;
+        right: 12px;
+      }
+
+      .fox-credit {
+        right: 12px;
+        bottom: 12px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ANA SAYFAYA DÖN -->
+  <button
+    id="homeButton"
+    class="secondary-btn top-home-btn"
+    onclick="goHome()"
+  >
+    ← Ana Sayfaya Dön
+  </button>
+
+  <!-- ANA SAYFA -->
+  <main id="homeScreen" class="screen active">
+    <div class="home-content">
+      <div class="eyebrow">BATTLE • STRATEGY • TEAMWORK</div>
+
+      <h1 class="main-title">
+        5v5
+        <span>MOBILE LEGENDS</span>
+      </h1>
+
+      <p class="subtitle">
+        Oyuncuları ekle, beş kişilik takımlarını rastgele oluştur
+        ve savaşmaya hazırlan!
+      </p>
+
+      <button class="primary-btn" onclick="goToSetup()">
+        BAŞLA →
+      </button>
+    </div>
+  </main>
+
+  <!-- OYUNCU GİRİŞİ -->
+  <section id="setupScreen" class="screen">
+    <div class="page-container">
+      <div class="page-heading">
+        <div class="eyebrow">TEAM GENERATOR</div>
+        <h2>Oyuncuları Ekle</h2>
+        <p>Her satıra bir oyuncu adı yaz.</p>
+      </div>
+
+      <div class="panel">
+        <div class="field-heading">
+          <label for="playerNames">Oyuncu listesi</label>
+          <span id="playerCount" class="player-count">0 oyuncu</span>
+        </div>
+
+        <textarea
+          id="playerNames"
+          placeholder="Oyuncu1&#10;Oyuncu2&#10;Oyuncu3&#10;Oyuncu4&#10;Oyuncu5&#10;Oyuncu6&#10;Oyuncu7&#10;Oyuncu8&#10;Oyuncu9&#10;Oyuncu10"
+          spellcheck="false"
+        ></textarea>
+
+        <p class="hint">
+          En az 5 oyuncu gerekli. Her takım 5 kişiden oluşur.
+          Oyuncu sayısı 5'in katı değilse takımlar mümkün olduğunca
+          eşit dağıtılır. Örneğin 12 oyuncu, 6'şar kişilik iki takım
+          yerine 4'er kişilik üç takım oluşturmaz; takım sayısı ve
+          dağılım aşağıdaki kurala göre belirlenir.
+        </p>
+
+        <div id="errorMessage" class="error-message" role="alert"></div>
+
+        <div class="form-actions">
+          <button class="primary-btn" onclick="createTeams()">
+            TAKIMLARI OLUŞTUR
+          </button>
+
+          <button class="secondary-btn" onclick="clearPlayers()">
+            Listeyi Temizle
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAKIM SONUÇLARI -->
+  <section id="resultsScreen" class="screen">
+    <div class="page-container">
+      <div class="results-header">
+        <div>
+          <div class="eyebrow">YOUR SQUADS</div>
+          <h2>Takımlar Hazır!</h2>
+        </div>
+
+        <div class="results-actions">
+          <button class="secondary-btn" onclick="shuffleTeams()">
+            🔀 Yeniden Karıştır
+          </button>
+
+          <button class="secondary-btn" onclick="copyTeams()">
+            📋 Kopyala
+          </button>
+        </div>
+      </div>
+
+      <div id="teamsGrid" class="teams-grid"></div>
+
+      <p id="resultsNote" class="results-note"></p>
+      <p id="copyMessage" class="results-note" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- FOX İMZASI -->
+  <button
+    class="fox-credit"
+    type="button"
+    onclick="openDeveloper()"
+    aria-label="Fox geliştirici profilini aç"
+  >
+    <img src="fox-logo.png" alt="Fox logosu">
+    <span>Fox tarafından <strong>yapıldı</strong></span>
+  </button>
+
+  <!-- GELİŞTİRİCİ PROFİLİ -->
+  <div
+    id="developerOverlay"
+    class="developer-overlay"
+    onclick="closeDeveloperOutside(event)"
+  >
+    <div
+      class="developer-card"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Geliştirici profili"
+    >
+      <button
+        class="developer-close"
+        onclick="closeDeveloper()"
+        aria-label="Kapat"
+      >×</button>
+
+      <img
+        src="Ali.jpg"
+        alt="Ali Baran Boztaş"
+        class="developer-photo"
+      >
+
+      <div class="developer-label">DEVELOPER PROFILE</div>
+      <div class="developer-name">Ali Baran Boztaş</div>
+      <div class="developer-brand">/ Fox</div>
+    </div>
+  </div>
+
+  <script>
+    const homeScreen = document.getElementById("homeScreen");
+    const setupScreen = document.getElementById("setupScreen");
+    const resultsScreen = document.getElementById("resultsScreen");
+    const homeButton = document.getElementById("homeButton");
+    const playerNames = document.getElementById("playerNames");
+    const playerCount = document.getElementById("playerCount");
+    const errorMessage = document.getElementById("errorMessage");
+    const teamsGrid = document.getElementById("teamsGrid");
+    const resultsNote = document.getElementById("resultsNote");
+    const copyMessage = document.getElementById("copyMessage");
+    const developerOverlay = document.getElementById("developerOverlay");
+
+    let currentTeams = [];
+
+    const locationNames = [
+      "Land of Dawn",
+      "Imperial Sanctuary",
+      "Celestial Palace",
+      "Shadow Abyss",
+      "Frozen Tundra",
+      "Mystic Valley",
+      "Dragon Altar",
+      "Emerald Woodland",
+      "Aether Core",
+      "Crystal Dominion",
+      "Storm Citadel",
+      "Phantom Realm",
+      "Moonlit Shrine",
+      "Crimson Battlefield",
+      "Silent Monastery",
+      "Golden Fortress",
+      "Twilight Harbor",
+      "Arcane Ruins"
+    ];
+
+    function showScreen(screen) {
+      [homeScreen, setupScreen, resultsScreen].forEach(item => {
+        item.classList.remove("active");
+      });
+
+      screen.classList.add("active");
+      homeButton.classList.toggle("visible", screen !== homeScreen);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function goHome() {
+      showScreen(homeScreen);
+      hideError();
+    }
+
+    function goToSetup() {
+      showScreen(setupScreen);
+      playerNames.focus();
+    }
+
+    function getNames() {
+      return playerNames.value
+        .split(/\r?\n/)
+        .map(name => name.trim())
+        .filter(name => name.length > 0);
+    }
+
+    function updatePlayerCount() {
+      const count = getNames().length;
+      playerCount.textContent = count + " oyuncu";
+    }
+
+    playerNames.addEventListener("input", updatePlayerCount);
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add("visible");
+    }
+
+    function hideError() {
+      errorMessage.textContent = "";
+      errorMessage.classList.remove("visible");
+    }
+
+    function clearPlayers() {
+      playerNames.value = "";
+      updatePlayerCount();
+      hideError();
+      playerNames.focus();
+    }
+
+    function shuffleArray(array) {
+      const result = [...array];
+
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+
+      return result;
+    }
+
+    function getUniqueTeamNames(numberOfTeams) {
+      const names = shuffleArray(locationNames);
+      const result = [];
+
+      for (let i = 0; i < numberOfTeams; i++) {
+        if (i < names.length) {
+          result.push(names[i]);
+        } else {
+          result.push(
+            names[i % names.length] + " " +
+            (Math.floor(i / names.length) + 2)
+          );
+        }
+      }
+
+      return result;
+    }
+
+    function createTeams() {
+      hideError();
+      copyMessage.textContent = "";
+
+      const names = getNames();
+
+      if (names.length < 5) {
+        showError("Takım oluşturmak için en az 5 oyuncu girmelisin.");
+        return;
+      }
+
+      const shuffledPlayers = shuffleArray(names);
+
+      // Her takım en fazla 5 kişi olacak şekilde takım sayısını belirle.
+      const numberOfTeams = Math.ceil(shuffledPlayers.length / 5);
+      const teamNames = getUniqueTeamNames(numberOfTeams);
+
+      currentTeams = Array.from({ length: numberOfTeams }, (_, index) => ({
+        name: teamNames[index],
+        players: []
+      }));
+
+      // Oyuncuları takımlara sırayla dağıt.
+      shuffledPlayers.forEach((player, index) => {
+        currentTeams[index % numberOfTeams].players.push(player);
+      });
+
+      renderTeams();
+      showScreen(resultsScreen);
+    }
+
+    function renderTeams() {
+      teamsGrid.innerHTML = "";
+
+      currentTeams.forEach((team, index) => {
+        const card = document.createElement("article");
+        card.className = "team-card";
+
+        const number = document.createElement("div");
+        number.className = "team-number";
+        number.textContent = "TEAM " + String(index + 1).padStart(2, "0");
+
+        const name = document.createElement("h3");
+        name.className = "team-name";
+        name.textContent = team.name;
+
+        const list = document.createElement("ul");
+        list.className = "team-players";
+
+        team.players.forEach(player => {
+          const item = document.createElement("li");
+
+          const dot = document.createElement("span");
+          dot.className = "player-dot";
+          dot.setAttribute("aria-hidden", "true");
+
+          const playerText = document.createElement("span");
+          playerText.textContent = player;
+
+          item.append(dot, playerText);
+          list.appendChild(item);
+        });
+
+        card.append(number, name, list);
+        teamsGrid.appendChild(card);
+      });
+
+      const playerTotal = currentTeams.reduce(
+        (total, team) => total + team.players.length, 0
+      );
+
+      resultsNote.textContent =
+        playerTotal + " oyuncu • " +
+        currentTeams.length + " takım • Takımlar rastgele oluşturuldu.";
+    }
+
+    function shuffleTeams() {
+      if (getNames().length < 5) {
+        showError("En az 5 oyuncu eklemelisin.");
+        showScreen(setupScreen);
+        return;
+      }
+
+      createTeams();
+    }
+
+    async function copyTeams() {
+      if (!currentTeams.length) return;
+
+      const text = currentTeams.map((team, index) => {
+        return "TAKIM " + (index + 1) + " — " + team.name +
+          "\n" + team.players.map(player => "• " + player).join("\n");
+      }).join("\n\n");
+
+      try {
+        await navigator.clipboard.writeText(text);
+        copyMessage.textContent = "✓ Takım listesi panoya kopyalandı!";
+      } catch (error) {
+        const temporary = document.createElement("textarea");
+        temporary.value = text;
+        temporary.style.position = "fixed";
+        temporary.style.opacity = "0";
+        document.body.appendChild(temporary);
+        temporary.select();
+
+        const success = document.execCommand("copy");
+        temporary.remove();
+
+        copyMessage.textContent = success
+          ? "✓ Takım listesi panoya kopyalandı!"
+          : "Kopyalama başarısız oldu. Lütfen tekrar dene.";
+      }
+    }
+
+    function openDeveloper() {
+      developerOverlay.classList.add("active");
+    }
+
+    function closeDeveloper() {
+      developerOverlay.classList.remove("active");
+    }
+
+    function closeDeveloperOutside(event) {
+      if (event.target === developerOverlay) {
+        closeDeveloper();
+      }
+    }
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        closeDeveloper();
+      }
+    });
+
+    updatePlayerCount();
+  </script>
+
+</body>
+</html>
